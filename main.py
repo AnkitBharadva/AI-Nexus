@@ -38,8 +38,13 @@ class IntersectionController:
         
         self.current_allocated_green = self.base_green
         self.consecutive_green_count = 1
+        
+        self.last_green_time = [0.0] * NUM_LANES
 
     def update(self, current_time, vehicle_counts, emergency_detected_flags):
+        if self.state == "GREEN":
+            self.last_green_time[self.active_lane_idx] = current_time
+            
         elapsed = current_time - self.state_start_time
         
         if self.state == "GREEN":
@@ -96,6 +101,9 @@ class IntersectionController:
             return max(0.0, self.yellow_time - elapsed)
         elif self.state == "ALL_RED":
             return max(0.0, self.all_red_time - elapsed)
+
+    def get_wait_times(self, current_time):
+        return [current_time - t for t in self.last_green_time]
 
     def get_light_state_for_lane(self, lane_idx):
         if lane_idx == self.active_lane_idx:
@@ -278,7 +286,8 @@ def run_traffic_simulation():
             "active_lane": LANE_NAMES[controller.active_lane_idx],
             "lane_names": LANE_NAMES,
             "state": controller.state,
-            "remaining_time": remaining_time
+            "remaining_time": remaining_time,
+            "wait_times": controller.get_wait_times(sim_time)
         }
         
         yield grid, analytics_data

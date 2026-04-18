@@ -18,6 +18,7 @@ with col1:
 with col2:
     st.subheader("Live Analytics", anchor=False)
     status_placeholder = st.empty()
+    wait_times_placeholder = st.empty()
     st.markdown("### Vehicles Per Lane")
     lane_chart_placeholder = st.empty()
     st.markdown("### Vehicle Type Distribution")
@@ -51,6 +52,12 @@ def render_dashboard():
             total_vehicles = sum(analytics['lane_counts'])
             st.write(f"**Total Vehicles Passing:** {total_vehicles}")
             
+        with wait_times_placeholder.container():
+            st.markdown("### ⏳ Wait Times")
+            cols = st.columns(4)
+            for i, w in enumerate(analytics['wait_times']):
+                cols[i].metric(label=analytics['lane_names'][i], value=f"{w:.1f}s")
+                
         # Draw Lane Distribution Bar Chart
         lane_df = pd.DataFrame({
             "Lane": analytics['lane_names'],
