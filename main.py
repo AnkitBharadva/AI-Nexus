@@ -287,7 +287,8 @@ def run_traffic_simulation():
             "lane_names": LANE_NAMES,
             "state": controller.state,
             "remaining_time": remaining_time,
-            "wait_times": controller.get_wait_times(sim_time)
+            "wait_times": controller.get_wait_times(sim_time),
+            "allocated_green": controller.current_allocated_green
         }
         
         yield grid, analytics_data

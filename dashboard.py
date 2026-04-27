@@ -32,23 +32,32 @@ def render_dashboard():
     for grid, analytics in simulator:
         # Convert BGR to RGB for Streamlit rendering
         grid_rgb = cv2.cvtColor(grid, cv2.COLOR_BGR2RGB)
-        video_placeholder.image(grid_rgb, channels="RGB", use_container_width=True)
+        video_placeholder.image(grid_rgb, channels="RGB")
         
         # Destructure analytics
         active_lane = analytics['active_lane']
         state = analytics['state']
         remaining = analytics['remaining_time']
+        allocated_green = analytics['allocated_green']
         
         # Define color based on intersection state for frontend
         state_color = "🟢" if state == "GREEN" else ("🟡" if state == "YELLOW" else "🔴")
         
         with status_placeholder.container():
-            st.metric(
-                label="Intersection Status", 
-                value=f"{state_color} {active_lane} is {state}", 
-                delta=f"{remaining:.1f}s Remaining in Phase", 
-                delta_color="off"
-            )
+            if state == "GREEN":
+                st.metric(
+                    label="Intersection Status", 
+                    value=f"{state_color} {active_lane} is GREEN for {allocated_green:.1f}s", 
+                    delta=f"{remaining:.1f}s Remaining", 
+                    delta_color="off"
+                )
+            else:
+                st.metric(
+                    label="Intersection Status", 
+                    value=f"{state_color} {active_lane} is {state}", 
+                    delta=f"{remaining:.1f}s Remaining in Phase", 
+                    delta_color="off"
+                )
             total_vehicles = sum(analytics['lane_counts'])
             st.write(f"**Total Vehicles Passing:** {total_vehicles}")
             
